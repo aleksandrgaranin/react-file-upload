@@ -1,10 +1,12 @@
 import React, { Fragment, useState } from 'react'
 import axios from 'axios';
+import Message from './Message';
 
 const FileUpload = () => {
   const [file, setFile] = useState('')
   const [fileName, setFileName] = useState('Choose File');
-  const [uploadedFile, setUploadedFile] = useState({})
+  const [uploadedFile, setUploadedFile] = useState({});
+  const [message, setMessage] = useState('')
 
   const changeHandler = (event) => {
     setFile(event.target.files[0]);
@@ -26,12 +28,12 @@ const FileUpload = () => {
       const { fileName, filePath } = res.data;
 
       setUploadedFile({ fileName, filePath });
-      console.log('UPLOADED', fileName, filePath)
+      setMessage('file Uploaded')
     } catch (error) {
       if (error.response.status === 500) {
-        console.log('There was a problem with the server');
+        setMessage('There was a problem with the server');
       } else {
-        console.log(error.response.data.msg);
+        setMessage(error.response.data.msg);
       }
     }
   }
@@ -39,6 +41,7 @@ const FileUpload = () => {
 
   return (
     <Fragment>
+      {message ? <Message msg={message}/> : null}
       <form onSubmit={submitHandler}>
         <div className="mb-3">
           <input className="form-control" type="file" id="formFile" onChange={changeHandler} />
