@@ -1,12 +1,14 @@
 import React, { Fragment, useState } from 'react'
 import axios from 'axios';
 import Message from './Message';
+import Progress from './Progress';
 
 const FileUpload = () => {
   const [file, setFile] = useState('')
   const [fileName, setFileName] = useState('Choose File');
   const [uploadedFile, setUploadedFile] = useState({});
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState('');
+  const [uploadPercentege, setUploadPercentege] = useState(0)
 
   const changeHandler = (event) => {
     setFile(event.target.files[0]);
@@ -22,6 +24,11 @@ const FileUpload = () => {
       const res = await axios.post('/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
+        },
+        onUploadProgress: progressEvent => {
+          setUploadPercentege(parseInt(Math.round((progressEvent.loaded * 100) / progressEvent.total)))
+          //Clear percentage
+          setTimeout(() => setUploadPercentege(0), 10000)
         }
       });
 
@@ -41,11 +48,12 @@ const FileUpload = () => {
 
   return (
     <Fragment>
-      {message ? <Message msg={message}/> : null}
+      {message ? <Message msg={message} /> : null}
       <form onSubmit={submitHandler}>
         <div className="mb-3">
           <input className="form-control" type="file" id="formFile" onChange={changeHandler} />
         </div>
+        <Progress percentage={uploadPercentege}></Progress>
         <input type="submit" value="Upload" className="btn btn-primary btn-block mt-4" />
       </form>
       {
